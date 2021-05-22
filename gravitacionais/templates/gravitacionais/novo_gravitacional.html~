@@ -1,0 +1,15 @@
+{% extends 'pecas/base.html' %}
+{% block title %}
+.:: Kanban - Nova peça ::.
+{% endblock %}
+{% block breadcrumb %}
+<li class='breadcrumb-item'>
+  <a href='{% url "pecas:index" %}'>Peças</a>
+</li>
+{% endblock %}
+{% block content %}
+<form method='post' novalidate>
+  {% csrf_token %}
+  {% include 'pecas/includes/form.html' %}
+  <button type='submit' class='btn btn-success'>Cadastro</button>
+{% endblock %}

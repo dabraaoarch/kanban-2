@@ -1,0 +1,37 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <title>
+      {% block title %} .:: Kanban ::.{% endblock %}
+    </title>
+    <link rel='stylesheet' type='text/css'
+	  href='{% static "pecas/css/bootstrap.min.css" %}'>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Istok+Web&family=Libre+Barcode+39+Text&display=swap"
+      rel="stylesheet">
+    {% block html-header %}
+    {% endblock %}
+  </head>
+  <body>
+    <nav class='navbar navbar-expand-lg navbar-dark bg-dark'>
+      <div class='container'>
+	<a class='navbar-brand' href='{% url "pecas:index" %}'>
+	  Kanban
+	</a>
+      </div>
+    </nav>
+    
+    <div class='container'>
+      <ol class='breadcrumb my-4'>
+	{% block breadcrumb %}
+	{% endblock %}
+      </ol>
+      {% block content %}
+      {% endblock %}
+    </div>
+  </body>
+</html>
+

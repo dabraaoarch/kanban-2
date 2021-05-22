@@ -1,0 +1,37 @@
+{% load widget_tweaks %}
+{% load mathfilters %}
+
+<section>
+  <div class='row'>
+    <div class='col-md form-group'>
+{% for field in form %}
+    {% if forloop.counter0 == form.lines_count|div:2 %}
+      </div>
+      <div class='col-md form-group'>
+    {% endif %}
+    {{ field.label_tag }}
+      {% if form.is_bound %}
+        {% if field.errors %}
+          {% render_field field class='form-control is-invalid' %}
+          {% for error in field.errors %}
+            <div class='invalid-feedback'>
+	      {{ error }}
+            </div>
+	  {% endfor %}
+	{% else %}
+	  {% render_field field class='form-control is-valid' %}
+	{% endif %}
+      {% else %}
+	{% render_field field class='form-control' %}
+      {% endif %}    
+    {% if field.help_text %}
+    <small class='form-text text-muted'>
+      {{ field.help_text }}
+    </small>
+    {% endif %}
+{% endfor %}
+    </div>
+  </div>
+</section>
+  
+

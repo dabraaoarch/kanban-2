@@ -1,0 +1,25 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <title>
+      {% block title %} .:: Kanban ::.{% endblock %}
+    </title>
+    <link rel='stylesheet' type='text/css'
+	  href='{% static "pecas/css/bootstrap.min.css" %}'>
+    {% block html-header %}
+    {% endblock %}
+  </head>
+  <body>
+    <div class='container'>
+      <ol class='breadcrumb my-4'>
+	{% block breadcrumb %}
+	{% endblock %}
+      </ol>
+      {% block content %}
+      {% endblock %}
+    </div>
+  </body>
+</html>
+

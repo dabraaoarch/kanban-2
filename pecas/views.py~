@@ -1,0 +1,21 @@
+from django.shortcuts import render,get_object_or_404,redirect,reverse
+from .models import Peca, Aplicacao
+
+def index(request):
+    pecas = Peca.objects.all()
+    context = {
+        'pecas' : pecas
+    }
+    return render(request,'pecas/index.html', context)
+
+def aplicacoes(request, peca_id):
+    peca = get_object_or_404(Peca, pk=peca_id)
+    if peca.aplicacao_set.filter(ativo=True).count() > 0:
+        aplicacoes = peca.aplicacao_set.filter(ativo=True)
+        context = {
+            'peca' : peca,
+            'aplicacoes' : aplicacoes 
+        }
+        return render(request, 'pecas/aplicacoes.html', context)
+    else :
+        return redirect(reverse('pecas:index'))

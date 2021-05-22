@@ -1,0 +1,6 @@
+from django.test import TestCase
+from django.urls import reverse, resolve
+
+class GerirGravitacionalTests(TestCase):
+    def load_page(self):
+        url = reverse('gravitacionais:gerir_gravitacional')

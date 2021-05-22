@@ -1,0 +1,47 @@
+{% extends 'pecas/base.html' %}
+{% block title %}.:: Kanban - Peças ::.{% endblock %}
+{% block breadcrumb %}
+<li class='breadcrumb-item active'>Peças</li>
+{% endblock %}
+{% block content %}
+<div class='mb-4'>
+  <a href='{% url "pecas:nova_peca" %}' class='btn btn-primary'>
+    Nova peça
+  </a>
+  <a href='{% url "gravitacionais:index" %}' class='btn btn-primary'>
+    Gravitacionais
+  </a>
+</div>
+      {% if pecas.count > 0 %}
+      <table class='table'>
+	<thead class='thead-inverse'>
+	<tr>
+	  <th>Código peça</th>
+	  <th>Descrição</th>
+	  <th>Data cadastro</th>
+	  <th>Aplicações</th>
+	</tr>
+	</thead>
+	{% for peca in pecas %}
+	<tbody>
+	<tr>
+	  <td>{{ peca.codigo_peca }}</td>
+	  <td>{{ peca.nome_peca }}</td>
+	  <td>{{ peca.data_cadastro }}</td>
+	  {% if peca.get_aplicacoes > 0 %}
+	  <td class='align-middle'>
+<a href='{% url "pecas:aplicacoes" peca.id %}'>{{ peca.get_aplicacoes }}
+	    </a>
+	  </td>
+	  {% else %}
+	  <td class='align-middle'>0</td>
+	  {% endif %}
+	</tr>
+	</tbody>
+	{% endfor %}
+      </table>
+      {% else %}
+      <p>Sem peças para listagem</p>
+      {% endif %}
+{% endblock %}
+

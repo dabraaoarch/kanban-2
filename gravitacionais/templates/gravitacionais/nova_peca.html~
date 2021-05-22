@@ -1,0 +1,3 @@
+{% extends 'pecas/base.html' %}
+{% block title %}.:: Kanban - Nova peça ::.{% endblock %}
+{% block content %}- Hello there|<br>- General Knobi!{% endblock %}
