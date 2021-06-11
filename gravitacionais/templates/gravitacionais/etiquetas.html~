@@ -1,2 +1,0 @@
-{% extends 'gravitacionais/base.html' %}
-{% block title %}.:: Kanban - {{ gravitacional.codigo }} ::. {% endblock %}

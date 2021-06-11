@@ -1,0 +1,17 @@
+{% extends 'includes/lista.html' %}
+{% block breadcrumb %}
+<li class='breadcrumb-item'>Pendentes</li>
+{% endblock %}
+{% block leitor %}
+<form method='post' id='formulario' novalidate>
+  {% csrf_token %}
+  {% include 'includes/form.html' %}
+  <script type='text/javascript'>
+    let tipo_pedido = document.getElementById('id_tipo_pedido')
+    let codigo = document.getElementById('id_codigo')
+    tipo_pedido.value = "{{ tipo_pedido }}"
+    codigo.onChange = 'document.getElementById("formulario").submit()'
+    
+   </script>
+ </form>
+{% endblock %}

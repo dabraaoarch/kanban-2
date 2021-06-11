@@ -1,11 +1,18 @@
 from django.test import TestCase
 from django.urls import reverse, resolve
 from ..views import index, aplicacoes
-from ..models import Peca, Aplicacao
-from gravitacionais.models import Gravitacional
+from ..models import Peca, Aplicacao, Gravitacional
 from .cria_objetos import *
 
+
 class AplicacaoTests(TestCase):
+    def setUp(self):
+        if self.client is not None:
+            user = cria_usuario()
+            self.user = self.client.force_login(
+                user = user
+            )
+            
     def load_page(self, peca_id):
         '''
         Get the page to run the tests
@@ -16,6 +23,7 @@ class AplicacaoTests(TestCase):
                 'peca_id' : peca_id
             }
         )
+
         return self.client.get(url)
 
     def test_aplicacoes_list_view_status_code(self):
@@ -26,6 +34,13 @@ class AplicacaoTests(TestCase):
         aplicacao = cria_aplicacao(peca)
         response = self.load_page(peca_id=peca.id)
         self.assertEquals(response.status_code, 200)
+
+    def test_aplicacoes_list_view_resolves_view(self):
+        aplicacao = cria_aplicacao()
+        view = resolve('/pecas/{0}/'.format(
+            aplicacao.peca_aplicacao.id
+        ))
+        self.assertEquals(view.func, aplicacoes)
 
     def test_aplicacoes_list_page_not_found(self):
         '''

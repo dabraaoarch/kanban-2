@@ -1,11 +1,16 @@
 from django.test import TestCase
 from django.urls import reverse, resolve
 from ..views import index
-from ..models import Peca, Aplicacao
-from gravitacionais.models import Gravitacional
+from ..models import Peca, Aplicacao, Gravitacional
 from .cria_objetos import *
 
 class PecasTests(TestCase):
+    def setUp(self):
+        if User.objects.exists():
+            user = cria_usuario()
+            self.user = self.client.force_login(
+                user = user
+            )
     
     def load_page(self):
         '''
@@ -40,11 +45,11 @@ class PecasTests(TestCase):
     def test_peca_list_view_with_peca(self):
         '''
         If some item is already registered, the table should
-        display the four collumns related do the item
+        display the five collumns related do the item
         '''
         peca = cria_pecas()
         response = self.load_page()
-        self.assertContains(response, '<td', 4)
+        self.assertContains(response, '<td', 5)
         self.assertQuerysetEqual(response.context['pecas'], [peca])
         
     def test_peca_list_view_without_peca(self):
@@ -71,21 +76,98 @@ class PecasTests(TestCase):
         response = self.load_page()
         self.assertContains(
             response,
-            "<a href='{0}'".format(
+            "<a href='{0}'>{1}".format(
                 reverse('pecas:aplicacoes',
                         kwargs= { 'peca_id' : peca.id}
-                        )
+                ),
+                Aplicacao.objects.filter(
+                    peca_aplicacao=peca,
+                    ativo=True
+                ).count()                
             ),
             1
         )
         
-    def test_peca_contains_link_to_nova_peca(self):
+    def test_peca_contains_links(self):
+        '''
+        The pecas:index must contain a link to a new peca, to
+        gravitacionais:index and abastecimento:index
+        '''
         response = self.load_page()
         self.assertContains(
             response,
-            "<a href='{0}'".format(reverse('pecas:nova_peca')),
+            " href='{0}'".format(reverse('pecas:nova_peca')),
+            1
+        )
+        self.assertContains(
+            response,
+            ' href="{0}"'.format(reverse('pecas:gravitacionais')),
+            1
+        )
+        self.assertContains(
+            response,
+            ' href="{0}"'.format(reverse('pecas:pendentes')),
             1
         )
             
+    def test_remover_peca_link(self):
+        '''
+        The pecas:index list must contains one remove link to each peca
+        '''
+        peca = cria_pecas()
+        response = self.load_page()
+        self.assertContains(
+            response,
+            "<a href='{0}'".format(
+                reverse(
+                    'pecas:remover_peca',
+                    kwargs={
+                        'peca_id' : peca.id
+                    }
+                ),
+                1
+            )
+        )
+
+    def test_remover_peca_invalid_peca_id(self):
+        '''
+        If an invalid ID if given for the remover_peca view it must return
+        a 404 error.
+        '''
+        url = reverse(
+            'pecas:remover_peca',
+            kwargs = {
+                'peca_id' : 99
+            }
+        )
+        response = self.client.get(url)
+        self.assertEquals(response.status_code, 404)
         
-        
+    def test_remover_peca_redirects_to_index(self):
+        '''
+        After removing a peca the pecas:remover_peca view must redirect
+        the user to the pecas:index
+        '''
+        peca = cria_pecas()
+        url = reverse(
+            'pecas:remover_peca',
+            kwargs = {
+                'peca_id' : peca.id
+            }
+        )
+        response = self.client.get(url)
+        self.assertRedirects(response,reverse('pecas:index'))
+
+    def test_remover_peca_removed(self):
+        '''
+        Check if the peca is removed from the database
+        '''
+        peca = cria_pecas()
+        url = reverse(
+            'pecas:remover_peca',
+            kwargs = {
+                'peca_id' : peca.id
+            }
+        )
+        response = self.client.get(url)
+        self.assertFalse(Peca.objects.exists())

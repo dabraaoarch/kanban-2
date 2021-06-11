@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}.:: Kanban - Abastecimento ::.{% endblock %}
+{% block content %}
+<div class='container'>
+  <a href='{% url "pecas:pedidos" "pendentes" %}'
+     class='btn btn-primary'>
+  Pendentes
+  </a>
+  <a href='{% url "pecas:pedidos" "transporte" %}'
+     class='btn btn-primary'>
+  Transporte
+  </a>
+  <a href='{% url "pecas:pedidos" "concluidos" %}'
+     class='btn btn-primary'>
+  Concluidos
+  </a>
+</div>
+<br>
+{% block leitor %}
+
+{% endblock %}
+<br>
+{% if pedidos.count > 0 %}
+    <table class='table'>
+      <thead>
+	<tr>
+	  <th>Código do pedido</th>
+	  <th>Data pedido</th>
+	  <th>Peça</th>
+	  <th>Gravitacional</th>
+	  <th>Embalagem</th>
+	  <th>Remover</th>
+	</tr>
+      </thead>
+      <tbody>  
+    {% for pedido in pedidos %}
+      <tr>
+	<td class='codigo-barras text-center'>
+	  {{ pedido.codigo }}
+	</td>
+	<td>{{ pedido.data }}</td>
+	<td>{{ pedido.aplicacao.peca_aplicacao.codigo_peca }}</td>
+	<td>{{ pedido.aplicacao.gravitacional_aplicacao.codigo }}</td>
+	<td>{{ pedido.aplicacao.embalagem }}</td>	
+	<td>
+<a href='{% url "pecas:apagar_abastecimento" pedido.id %}'>
+	    Remover
+</a>
+	</td>
+      </tr>
+    {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+<p>
+Sem abastecimentos {% if tipo_pedido == "transporte" %} em {% endif %}{{ tipo_pedido }}!
+</p>
+  {% endif %}
+    
+{% endblock %}
+

@@ -1,11 +1,18 @@
 from django.test import TestCase
 from django.urls import reverse, resolve
-from ..views import index, aplicacoes
-from ..models import Peca, Aplicacao
-from gravitacionais.models import Gravitacional
+from ..views import AplicacaoListView
+from ..models import Peca, Aplicacao, Gravitacional
 from .cria_objetos import *
 
+
 class AplicacaoTests(TestCase):
+    def setUp(self):
+        if not User.objects.exists():
+            user = cria_usuario()
+            self.user = self.client.force_login(
+                user = user
+            )
+            
     def load_page(self, peca_id):
         '''
         Get the page to run the tests
@@ -33,7 +40,10 @@ class AplicacaoTests(TestCase):
         view = resolve('/pecas/{0}/'.format(
             aplicacao.peca_aplicacao.id
         ))
-        self.assertEquals(view.func, aplicacoes)
+        self.assertEquals(
+            view.func.view_class,
+            AplicacaoListView
+        )
 
     def test_aplicacoes_list_page_not_found(self):
         '''
@@ -67,17 +77,3 @@ class AplicacaoTests(TestCase):
             response.context['aplicacoes'],
             [aplicacao]
         )
-
-
-    def test_aplicacoes_list_view_without_aplicacao_redirects(self):
-        '''
-        If the item has no aplication added yet, it should
-        redirect back to the pecas list view page
-        '''
-        peca = cria_pecas()
-        response = self.load_page(peca_id=peca.id)
-        self.assertRedirects(response, reverse('pecas:index'))
-            
-    
-        
-

@@ -1,0 +1,11 @@
+{% extends 'includes/lista.html' %}
+{% block breadcrumb %}
+<li class='breadcrumb-item'>Concluídos</li>
+{% endblock %}
+{% block leitor %}
+<form method='post' id='formulario' novalidate>
+  {% csrf_token %}
+  {% include 'includes/form.html' %}
+</form>
+{% endblock %}
+{% block status_pedido %}concluidos{% endblock %}

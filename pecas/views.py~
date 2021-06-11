@@ -1,6 +1,103 @@
-from django.shortcuts import render,get_object_or_404,redirect,reverse
-from .models import Peca, Aplicacao
+from django.shortcuts import render, get_list_or_404, \
+    get_object_or_404, redirect, reverse
+from django.http import HttpResponseNotFound
+from django.contrib.auth.decorators import login_required
+from .models import *
+from .forms import NovoGravitacionalForm, NovaAplicacaoForm, \
+    NovaPecaForm, NovoAbastecimentoForm, MoverPedidoForm
 
+@login_required
+def gravitacionais(request):
+    gravitacionais = Gravitacional.objects.all()
+    context = {
+        'gravitacionais' : gravitacionais
+    }
+    return render(
+        request,
+        'gravitacionais/gravitacionais.html',
+        context
+    )
+
+@login_required
+def novo_gravitacional(request):
+    if request.method == 'POST':
+        form = NovoGravitacionalForm(request.POST)
+        if form.is_valid():
+            gravitacional = form.save(commit=False)
+            gravitacional.save()
+            return redirect(reverse('pecas:gravitacionais'))
+    else:
+        form = NovoGravitacionalForm()
+    return render(
+        request,
+        'gravitacionais/novo_gravitacional.html',
+        {'form':form}
+    )
+
+@login_required
+def gerir_gravitacional(request, gravitacional_id):
+    gravitacional = get_object_or_404(
+        Gravitacional,
+        pk=gravitacional_id
+    )
+    if request.method == 'POST':
+        form = NovaAplicacaoForm(request.POST)
+        if form.is_valid():
+            aplicacao = form.save(commit=False)
+            aplicacao.gravitacional_aplicacao = gravitacional
+            aplicacao.save()
+            
+    form = NovaAplicacaoForm()        
+    aplicacoes = gravitacional.aplicacao_set.filter(ativo=True)
+    context = {
+        'gravitacional' : gravitacional,
+        'aplicacoes': aplicacoes,
+        'form' : form
+    }
+    return render(
+        request,
+        'gravitacionais/gerir_gravitacional.html',
+        context
+    )
+
+@login_required
+def remover_aplicacao(request, aplicacao_id):
+    aplicacao = get_object_or_404(Aplicacao, pk=aplicacao_id)
+    gravitacional = aplicacao.gravitacional_aplicacao
+    aplicacao.ativo = False
+    aplicacao.save()
+    return redirect(
+        reverse(
+            'gravitacionais:gerir_gravitacional',
+            kwargs = {
+                'gravitacional_id' : gravitacional.id
+            }
+        )                
+    )
+
+@login_required
+def imprimir_etiquetas(request, gravitacional_id):
+      gravitacional = get_object_or_404(
+          Gravitacional,
+          pk=gravitacional_id
+      )
+      aplicacoes = gravitacional.aplicacao_set.filter(ativo=True)
+      context = {
+          'gravitacional' : gravitacional,
+          'aplicacoes' : aplicacoes
+      }
+      return render(request, 'gravitacionais/etiquetas.html', context)
+
+@login_required
+def remover_gravitacional(request, gravitacional_id):
+    gravitacional = get_object_or_404(
+        Gravitacional,
+        pk = gravitacional_id
+    )
+    gravitacional.delete()
+    return redirect(reverse('pecas:gravitacionais'))
+
+@login_required
 def index(request):
     pecas = Peca.objects.all()
     context = {
@@ -8,14 +105,119 @@ def index(request):
     }
     return render(request,'pecas/index.html', context)
 
+@login_required
 def aplicacoes(request, peca_id):
-    peca = get_object_or_404(Peca, pk=peca_id)
-    if peca.aplicacao_set.filter(ativo=True).count() > 0:
-        aplicacoes = peca.aplicacao_set.filter(ativo=True)
+    peca_aplicacao = get_object_or_404(Peca, pk=peca_id)
+    if peca_aplicacao.aplicacao_set.filter(ativo=True).count() > 0:
+        aplicacoes = peca_aplicacao.aplicacao_set.filter(ativo=True)
         context = {
-            'peca' : peca,
+            'peca_aplicacao' : peca_aplicacao,
             'aplicacoes' : aplicacoes 
         }
         return render(request, 'pecas/aplicacoes.html', context)
     else :
         return redirect(reverse('pecas:index'))
+
+@login_required
+def nova_peca(request):
+    if request.method == 'POST':
+        form = NovaPecaForm(request.POST)
+        if form.is_valid():
+            peca = form.save(commit=False)
+            peca.save()
+    else:
+        form = NovaPecaForm()
+    return render(request, 'pecas/nova_peca.html', {'form':form})
+
+@login_required
+def remover_peca(request, peca_id):
+    peca = get_object_or_404(Peca, pk=peca_id)
+    peca.delete()
+    return redirect(reverse('pecas:index'))
+
+@login_required
+def pedidos_pendentes(request):
+    if request.method == 'POST':
+        form = NovoAbastecimentoForm(request.POST)
+        if form.is_valid():
+            abastecimento = form.save(commit=False)
+            if abastecimento.valida_codigo():
+                peca_aplicacao = get_object_or_404(
+                    Peca,
+                    codigo_peca = abastecimento.get_codigo_peca()
+                )
+                gravitacional_aplicacao = get_object_or_404(
+                    Gravitacional,
+                    codigo = abastecimento.get_codigo_gravitacional()
+                )
+                aplicacao = get_list_or_404(
+                    Aplicacao,
+                    peca_aplicacao = peca_aplicacao,
+                    gravitacional_aplicacao = gravitacional_aplicacao
+                )
+                abastecimento.aplicacao = aplicacao[0]
+                abastecimento.save()
+            else:
+                form = NovoAbastecimentoForm()
+    else:
+        form = NovoAbastecimentoForm()
+    pendentes = Abastecimento.objects.filter(situacao='requisitado')
+    context = {
+        'pedidos' : pendentes,
+        'form' : form
+    }
+    return render(request,'abastecimentos/pendentes.html',context)
+
+@login_required
+def apagar_abastecimento(request, abastecimento_id):
+    abastecimento = get_object_or_404(
+        Abastecimento,
+        pk=abastecimento_id
+    )
+    abastecimento.delete()
+    return redirect(reverse('abastecimento:index'))
+
+@login_required
+def pedidos_transporte(request):
+    if request.method == 'POST':
+        form = MoverPedidoForm(request.POST)
+        if form.is_valid():
+            codigo = form.cleaned_data['codigo']
+            pedido = get_object_or_404(
+                Abastecimento,
+                pk = codigo
+            )
+            if pedido.situacao == 'requisitado':
+                pedido.situacao='transporte'
+                pedido.save()
+    form = MoverPedidoForm()
+    transportados = Abastecimento.objects.filter(
+        situacao = 'transporte'
+    )
+    context = {
+        'pedidos' : transportados,
+        'form' : form
+    }
+    return render(request,'abastecimentos/transporte.html',context)
+
+@login_required
+def pedidos_concluidos(request):
+    if request.method == 'POST':
+        form = MoverPedidoForm(request.POST)
+        if form.is_valid():
+            codigo = form.cleaned_data['codigo']
+            pedido = get_object_or_404(
+                Abastecimento,
+                pk = codigo,
+            )
+            if pedido.situacao == 'transporte':
+                pedido.situacao = 'concluido'
+                pedido.save()
+    form = MoverPedidoForm()
+    concluidos = Abastecimento.objects.filter(situacao='concluido')
+    context = {
+        'pedidos' : concluidos,
+        'form' : form
+    }
+    return render(request,'abastecimentos/concluidos.html',context)
+

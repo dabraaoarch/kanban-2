@@ -1,0 +1,113 @@
+from django.test import TestCase
+from django.urls import reverse, resolve
+from ..views import pedidos_concluidos, pedidos_pendentes, \
+    apagar_abastecimento
+from ..models import *
+
+from .cria_objetos import *
+
+class MoverPedidos(TestCase):
+    def setUp(self):
+        if not User.objects.exists():
+            user = cria_usuario()
+            self.user = self.client.force_login(
+                  user = user
+            )
+    
+    def test_mover_pedido_transporte_invalid_code(self):
+        '''
+        If the view receives an ID, it changes its status to
+        transporte, but only if it's as 'pendente'
+        '''
+        url = reverse('pecas:transporte')
+        response = self.client.post(url, {'codigo' : 99})
+        self.assertEquals(response.status_code, 404)
+        
+    def test_mover_pedido_transporte_valid_code(self):
+        '''
+        If a valid code is received by the view it should change de
+        item status and redirect the user back to de list page
+        '''
+        abastecimento = cria_abastecimento()
+        codigo = abastecimento.id
+        url = reverse('pecas:transporte')
+        response = self.client.post(url, {'codigo' : codigo})
+        self.assertEquals(
+            response.status_code,
+            200
+        )
+        self.assertTrue(
+            Abastecimento.objects.filter(
+                situacao='transporte'
+            ).exists()
+        )
+
+    def test_mover_pedido_transporte_valid_code_wrong_situacao(self):
+        '''
+        If a valid code is received by the view it should change de
+        item status and redirect the user back to de list page
+        '''
+        abastecimento = cria_abastecimento(situacao='concluido')
+        codigo = abastecimento.id
+        url= reverse('pecas:transporte')
+        response = self.client.post(url, {'codigo' : codigo })
+        self.assertEquals(
+            response.status_code,
+            200
+        )
+        self.assertFalse(
+            Abastecimento.objects.filter(
+                situacao='transporte'
+            ).exists()
+        )
+        
+        
+    def test_mover_pedido_concluido_invalid_code(self):
+        '''
+        The items are moved based on the url code sent to the
+        view, if a valid format for an invalid code is sent
+        the view return a 404 error.
+        Invalid URLs are blocked
+        '''
+        url = reverse('pecas:concluidos')
+        response = self.client.post(url, {'codigo' : 99})
+        self.assertEquals(response.status_code, 404)
+        
+    def test_mover_pedido_transporte_valid_code(self):
+        '''
+        If a valid code is received by the view it should change de
+        item status and redirect the user back to de list page
+        '''
+        abastecimento = cria_abastecimento(situacao='transporte')
+        codigo = abastecimento.id
+        url= reverse('pecas:concluidos')
+        response = self.client.post(url, {'codigo' : codigo })
+        self.assertEquals(
+            response.status_code,
+            200
+        )
+        self.assertTrue(
+            Abastecimento.objects.filter(
+                situacao='concluido'
+            ).exists()
+        )
+        
+    def test_mover_pedido_transporte_valid_code_wrong_situacao(self):
+        '''
+        If a valid code is received by the view it should change de
+        item status and redirect the user back to de list page
+        '''
+        abastecimento = cria_abastecimento()
+        codigo = abastecimento.id
+        url= reverse('pecas:concluidos')
+        response = self.client.post(url, {'codigo' : codigo })
+        self.assertEquals(
+            response.status_code,
+            200
+        )
+        self.assertFalse(
+            Abastecimento.objects.filter(
+                situacao='concluido'
+            ).exists()
+        )
+        

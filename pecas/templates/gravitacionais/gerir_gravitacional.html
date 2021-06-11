@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block title %}.:: Kanban - {{ gravitacional.codigo }} ::.{% endblock %}
+{% block breadcrumb %}
+<li class='breadcrumb-item'>
+  <a href='{% url "pecas:gravitacionais" %}'>
+    Gravitacionais
+  </a>
+</li>
+<li class='breadcrumb-item'>
+  {{ gravitacional.codigo }}
+</li>
+{% endblock %}
+{% block content %}
+<section>
+  <div class='row'>
+    <div class='col-md'>
+      <label for='labelCodigo'>Código:</label>
+      <input class='form-control' type='text' id='labelCodigo'
+	     disabled value='{{ gravitacional.codigo }}'>
+      </input>
+      <label for='labelDescricao'>Descrição:</label>
+      <input class='form-control' type='text' id='labelDescricao'
+	     disabled value='{{ gravitacional.descricao }}'>
+      </input>
+      <label for='labelDataCadastro'>Data cadastro:</label>
+      <input class='form-control' type='text' id='labelDataCadastro'
+	disabled value='{{ gravitacional.data_cadastro }}'>
+      </input>
+    </div>
+    <div class='col-md'>
+      <label for='labelPosto'>Posto:</label>
+      <input class='form-control' type='text' id='labelPosto'
+	     disabled value='{{ gravitacional.posto }}'>
+      </input>
+      <label for='labelLinha'>Linha:</label>
+      <input class='form-control' type='text' id='labelLinha'
+	     disabled value='{{ gravitacional.linha }}'>
+      </input>
+      <label for='labelGalpao'>Galpão:</label>
+      <input class='form-control' type='text' id='labelGalpao'
+	     disabled value='{{ gravitacional.galpao }}'>
+      </input>
+    </div>
+  </div>
+</section>
+<br>
+<form method='POST' novalidate>
+  {% csrf_token %}
+  {% include 'includes/form.html' %}
+  <button type='submit' class='btn btn-primary'>Adicionar</button>
+</form>
+<br>
+<h3> Itens gravitacional </h3>
+
+{% if aplicacoes.count > 0 %}
+  <table class='table'>
+    <thead>
+      <tr>
+	<th>Peça</th>
+	<th>Nome peça</th>
+	<th>Emabalagem</th>
+	<th>Data cadastro</th>
+	<th>Remover</th>
+      </tr>
+    </thead>
+    <tbody>
+  {% for aplicacao in aplicacoes %}
+  <tr>
+    <td>{{ aplicacao.peca_aplicacao.codigo_peca }}</td>
+    <td>{{ aplicacao.peca_aplicacao.nome_peca }}</td>
+    <td>{{ aplicacao.embalagem }}</td>
+    <td>{{ aplicacao.data_cadastro }}</td>
+    <td>
+      <a href='{% url "pecas:remover_aplicacao" aplicacao.id %}'>
+	Remover
+      </a>
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+  </table>
+{% else %}
+  <p>Nenhum item cadastrado ainda!</p>
+{% endif %}
+  <a href='{% url "pecas:imprimir_etiquetas" gravitacional.id %}'
+     target='_blank'
+     class='btn btn-primary'>
+    Imprimir etiquetas
+  </a>  
+{% endblock %}

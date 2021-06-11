@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}.:: Kanban - Gravitacionais ::.{% endblock %}
+{% block breadcrumb %}
+<li class='breadcrumb-item active'>Gravitacionais</li>
+{% endblock %}
+{% block content %}
+<div class='mb-4'>
+  <a href='{% url "pecas:novo_gravitacional" %}'
+     class='btn btn-primary'>
+    Novo gravitacional
+  </a>
+</div>
+      {% if gravitacionais.count > 0 %}
+      <table class='table'>
+	<thead class='thead-inverse'>
+	<tr>
+	  <th>Código</th>
+	  <th>Descrição</th>
+	  <th>Data cadastro</th>
+	  <th>Linha</th>
+	  <th>Posto</th>
+	  <th>Galpão</th>
+	  <th>Peças</th>
+	  <th>Remover</th>
+	</tr>
+	</thead>
+	{% for gravitacional in gravitacionais %}
+	<tbody>
+	<tr>
+	  <td>
+    <a href='{% url "pecas:gerir_gravitacional" gravitacional.id %}'>
+      {{ gravitacional.codigo }}
+    </a>
+	  </td>
+	  <td>{{ gravitacional.descricao }}</td>
+	  <td>{{ gravitacional.data_cadastro }}</td>
+	  <td>{{ gravitacional.linha }}</td>
+	  <td>{{ gravitacional.posto }}</td>
+	  <td>{{ gravitacional.galpao }}</td>
+	  {% if gravitacional.get_pecas_gravitacional > 0 %}
+	    <td class='align-middle'>
+	      <a
+href='{% url "pecas:gerir_gravitacional" gravitacional.id  %}'>
+		{{ gravitacional.get_pecas_gravitacional }}
+	      </a>
+	    </td>
+	  {% else %}
+	    <td class='align-middle'>0</td>
+	    {% endif %}
+	  <td>
+<a href='{% url "pecas:remover_gravitacional" gravitacional.id%}'>
+	      Remover
+	    </a>
+	  </td>
+	  
+	</tr>
+	</tbody>
+	{% endfor %}
+      </table>
+      {% else %}
+      <p>Sem gravitacionais para listagem</p>
+      {% endif %}
+{% endblock %}

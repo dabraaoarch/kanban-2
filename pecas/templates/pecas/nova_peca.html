@@ -1,4 +1,4 @@
-{% extends 'pecas/base.html' %}
+{% extends 'base.html' %}
 {% block title %}
 .:: Kanban - Nova peça ::.
 {% endblock %}
@@ -10,6 +10,8 @@
 {% block content %}
 <form method='post' novalidate>
   {% csrf_token %}
-  {% include 'pecas/includes/form.html' %}
+  {% include 'includes/form.html' %}
   <button type='submit' class='btn btn-success'>Cadastro</button>
+  <br><br>
+  {% include 'includes/lista-pecas.html' %}
 {% endblock %}

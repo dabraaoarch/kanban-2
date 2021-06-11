@@ -1,5 +1,0 @@
-from django.test import TestCase
-from django.urls import reverse, resolve
-from ..views import index, aplicacoes, nova_peca
-from ..models import Peca, Aplicacao
-from gravitacionais.models import Gravitacional

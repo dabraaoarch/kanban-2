@@ -1,0 +1,56 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>.:: Kanban - {{ gravitacional.codigo }}</title>
+    <link rel='stylesheet' type='text/css'
+	  href='{% static "css/cdb.css" %}'>
+    <link rel='stylesheet' type='text/css' 
+	  href='{% static "css/bootstrap.min.css" %}'>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Barcode+128&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div class='col-sm-8 col-print-A4-4'>
+      {% for aplicacao in aplicacoes %}
+      
+      <div class='row'>
+	<div class='col-sm'>
+	  <table class='table border'>
+	    <tr>
+	      <td>
+		{{ aplicacao.peca_aplicacao.nome_peca }}
+	      </td>
+	      <td>{{ aplicacao.peca_aplicacao.codigo_peca }}</td>
+	    </tr>
+	    <tr>
+	      <td colspan='2'>
+		<h1 class='codigo-barras text-center'>
+*{{ gravitacional.codigo }}*{{ aplicacao.peca_aplicacao.codigo_peca }}*{{ aplicacao.id }}*
+		</h1>
+	      </td>
+	    </tr>
+	  </table>
+	</div>
+	<div class='col-sm'>
+	  <table class='table border'>
+	    <tr>
+	      <td>
+ 		{{ aplicacao.peca_aplicacao.nome_peca }}
+	      </td>
+	      <td>{{ aplicacao.peca_aplicacao.codigo_peca }}</td>
+	    </tr>
+	    <tr>
+	      <td colspan='2'>
+		<h1 class='codigo-barras text-center'>
+*{{ gravitacional.codigo }}*{{ aplicacao.peca_aplicacao.codigo_peca }}*{{ aplicacao.id }}*
+		</h1>
+	      </td>
+	    </tr>
+	  </table>
+	</div>
+      </div>
+      	{% endfor %}
+    </div>
+  </body>
+</html>
